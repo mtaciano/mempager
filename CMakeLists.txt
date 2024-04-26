@@ -11,10 +11,12 @@ add_executable(
   src/mempager.c
   src/utils.c
   src/utils.h
-  src/fifo.c
-  src/fifo.h
-  src/clock.c
-  src/clock.h)
+  src/pager.c
+  src/pager.h
+  src/pagers/fifo.c
+  src/pagers/fifo.h
+  src/pagers/clock.c
+  src/pagers/clock.h)
 
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)

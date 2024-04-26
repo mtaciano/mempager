@@ -1,35 +1,36 @@
 #include <math.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
+#include "pagers/clock.h"
+#include "pagers/fifo.h"
 #include "utils.h"
 
-// Free all the linked list allocations
+// Free all the circular list allocations
 static void
 free_linked_list (linked_list_t *linked_list)
 {
-    printf("(pager-fifo): freeing linked list.\n");
+    printf("(pager): freeing linked list.\n");
 
     linked_list_t *head = linked_list;
-    while (linked_list != NULL) {
+    for (page_size_t i = 0; i < REAL_MEM_PAGES; i++) {
         linked_list = linked_list->next;
         free(head);
         head = linked_list;
     }
 
-    printf("(pager-fifo): linked list freed.\n");
+    printf("(pager): linked list freed.\n");
 }
 
 // Choose randomly virtual pages to allocate in the physical memory and fill
 // the linked list based on that choice
 static linked_list_t *
-init_mem (void)
+init_mem (pager_t pager)
 {
-    printf("(pager-fifo): initializing memory.\n");
+    printf("(pager): initializing memory.\n");
 
     linked_list_t *head = NULL;
+    linked_list_t *tail = NULL;
 
     for (page_size_t i = 0; i < REAL_MEM_PAGES; i++) {
         page_size_t chosen;
@@ -45,6 +46,14 @@ init_mem (void)
         new->page = &g_virt_mem[chosen];
         new->next = head;
         head = new;
+
+        if (pager == CLOCK && tail == NULL) {
+            tail = new;
+        }
+    }
+
+    if (pager == CLOCK) {
+        tail->next = head;
     }
 
     for (page_size_t i = 0; i < VIRT_MEM_PAGES; i++) {
@@ -64,77 +73,22 @@ init_mem (void)
         }
     }
 
-    printf("(pager-fifo): memory initialized.\n");
-
-    return head;
-}
-
-// Handle page misses (virtual memory not present in physical memory) using
-// a linked list to choose what pages to unload
-static linked_list_t *
-page_miss (page_size_t missed_page, linked_list_t *linked_list)
-{
-    linked_list_t *head = linked_list->next;
-    page_t *virt_page = linked_list->page;
-    page_size_t phys_position = virt_page->shift;
-
-    g_virt_mem[missed_page].active = 1;
-    g_virt_mem[missed_page].shift = virt_page->shift;
-
-    virt_page->active = 0;
-    virt_page->modified = 0;
-    virt_page->shift = 0;
-
-    char *filename = malloc(FILENAME_SIZE * sizeof(*filename));
-    mem_size_t first_removed_block = missed_page * BLOCK_SIZE;
-    mem_size_t last_removed_block = (missed_page + 1) * BLOCK_SIZE;
-    snprintf(
-        filename, FILENAME_SIZE, "%s/%lldB-%lldB.txt", SWAP,
-        first_removed_block, last_removed_block
-    );
-    remove(filename);
-
-    memset(filename, 0, strlen(filename));
-    mem_size_t first_added_block = phys_position * BLOCK_SIZE;
-    mem_size_t last_added_block = (phys_position + 1) * BLOCK_SIZE;
-    snprintf(
-        filename, FILENAME_SIZE, "%s/%lldB-%lldB.txt", SWAP, first_added_block,
-        last_added_block
-    );
-    FILE *file = fopen(filename, "w+");
-    fprintf(file, "in swap");
-    fclose(file);
-    free(filename);
-
-    linked_list_t *removed = linked_list;
-    linked_list = linked_list->next;
-    free(removed);
-
-    while (linked_list->next != NULL) {
-        linked_list = linked_list->next;
-    }
-
-    linked_list_t *new = malloc(sizeof(*new));
-    new->page = &g_virt_mem[missed_page];
-    new->next = NULL;
-    linked_list->next = new;
+    printf("(pager): memory initialized.\n");
 
     return head;
 }
 
 // The function responsible for how to handle memory paging
-// This implementation uses FIFO as a decision factor for what pages to
-// unload from memory (the first page loaded is the first to unload)
 void
-pager_fifo (distribution_t dist)
+pager (pager_t pager, distribution_t dist)
 {
-    printf("(pager-fifo): starting.\n");
+    printf("(pager): starting.\n");
 
     long int page_misses = 0;
     long int page_hits = 0;
-    linked_list_t *ll = init_mem();
+    linked_list_t *ll = init_mem(pager);
 
-    printf("(pager-fifo): starting paging simulation.\n");
+    printf("(pager): starting paging simulation.\n");
 
     for (time_size_t i = 0; i < TIME_LIMIT; i++) {
         if (i % REF_RESET == 0) {
@@ -151,7 +105,7 @@ pager_fifo (distribution_t dist)
             address = address % MEM_SIZE;
         } break;
         default: {
-            printf("(pager-fifo): distribution not recognized, exiting.");
+            printf("(pager): distribution not recognized, exiting.");
             exit(EXIT_FAILURE);
         } break;
         }
@@ -172,16 +126,20 @@ pager_fifo (distribution_t dist)
 
             page_hits += 1;
         } else {
-            ll = page_miss(page_hit_idx, ll);
+            if (pager == FIFO) {
+                ll = fifo_page_miss(page_hit_idx, ll);
+            } else if (pager == CLOCK) {
+                ll = clock_page_miss(page_hit_idx, ll);
+            }
             page_misses += 1;
         }
     }
 
-    printf("(pager-fifo): paging simulation finished.\n");
+    printf("(pager): paging simulation finished.\n");
 
     free_linked_list(ll);
 
-    printf("(pager-fifo): finished.\n");
+    printf("(pager): finished.\n");
 
     printf("\n");
     printf("(results): simulation cycles is %ld\n", TIME_LIMIT);

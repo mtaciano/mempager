@@ -4,8 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "clock.h"
-#include "fifo.h"
+#include "pager.h"
 #include "utils.h"
 
 typedef struct {
@@ -15,6 +14,12 @@ typedef struct {
     bool has_seed;
     int seed;
 } args_t;
+
+// Representation of the virtual pages is RAM
+page_t g_virt_mem[VIRT_MEM_PAGES];
+
+// Representation of the real pages is RAM
+page_t g_real_mem[REAL_MEM_PAGES];
 
 // TODO: make default values be possible
 static args_t
@@ -109,16 +114,7 @@ main (int argc, char **argv)
     init_swap();
     init_pages();
 
-    switch (args.pager) {
-    case FIFO: {
-        pager_fifo(args.distribution);
-    } break;
-    case CLOCK: {
-        pager_clock(args.distribution);
-    } break;
-    default:
-        break;
-    }
+    pager(args.pager, args.distribution);
 
     deinit_swap();
 

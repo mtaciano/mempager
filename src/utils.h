@@ -75,10 +75,10 @@ typedef struct linked_list_t {
 } linked_list_t;
 
 // Representation of the virtual pages is RAM
-static page_t g_virt_mem[VIRT_MEM_PAGES];
+extern page_t g_virt_mem[VIRT_MEM_PAGES];
 
 // Representation of the real pages is RAM
-static page_t g_real_mem[REAL_MEM_PAGES];
+extern page_t g_real_mem[REAL_MEM_PAGES];
 
 // Generate a random value between [0..1)
 float rand_small (void);
