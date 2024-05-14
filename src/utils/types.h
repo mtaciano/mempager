@@ -1,10 +1,8 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef TYPES_H
+#define TYPES_H
 
-#include <stdbool.h>
 #include <stdint.h>
-
-// TODO: maybe move all paging definitions to another file
+#include <stdio.h>
 
 // Size of the variable capable of representing the maximum time size
 typedef long int time_size_t;
@@ -79,29 +77,5 @@ extern page_t g_virt_mem[VIRT_MEM_PAGES];
 
 // Representation of the real pages is RAM
 extern page_t g_real_mem[REAL_MEM_PAGES];
-
-// Generate a random value between [0..1)
-float rand_small (void);
-
-// Generate a normalized random value based on a given `mean` and `stddev`
-double rand_normal (double mean, double std_dev);
-
-// Mutate string making it lowercase
-void to_lowercase (char *str);
-
-// Check if the given string is a number or not
-bool is_number (const char *str);
-
-// Reset all pages modifiers
-// This is to clear any pages that have modifiers set but will not be in the
-// future. Since pages with high hit counts should gain these modifiers again
-// this is not a problem
-void reset_modifiers (void);
-
-// Initialize (create) the `SWAP` folder
-void init_swap (void);
-
-// Remove all the leftover pages present in the `SWAP` folder
-void deinit_swap (void);
 
 #endif

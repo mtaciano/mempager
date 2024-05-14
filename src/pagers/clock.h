@@ -1,7 +1,7 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
-#include "../utils.h"
+#include "../utils/types.h"
 
 // Handle page misses (virtual memory not present in physical memory) using
 // a circular list to choose what pages to unload

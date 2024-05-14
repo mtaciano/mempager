@@ -1,66 +1,12 @@
-#include <ctype.h>
+#include "types.h"
+
 #include <dirent.h>
-#include <math.h>
-#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#include "utils.h"
-
-// Generate a random value between [0..1)
-float
-rand_small (void)
-{
-    return (double)rand() / (double)((unsigned long int)RAND_MAX + 1);
-}
-
-// Generate a normalized random value based on a given `mean` and `stddev`
-double
-rand_normal (double mean, double std_dev)
-{
-    double x = 0.;
-    do {
-        x = rand_small();
-    } while (x == 0.);
-
-    double y = sqrt(-2 * log(x));
-
-    double theta = 0.;
-    do {
-        theta = 2 * M_PI * rand_small();
-    } while (theta == 0.);
-
-    double z = y * cos(theta);
-
-    return (z * std_dev) + mean;
-}
-
-// Mutate string making it lowercase
-void
-to_lowercase (char *str)
-{
-    while (*str != '\0') {
-        *str = tolower(*str);
-        str++;
-    }
-}
-
-// Check if the given string is a number or not
-bool
-is_number (const char *str)
-{
-    while (*str != '\0') {
-        if (!isdigit(*str)) {
-            return false;
-        }
-        str++;
-    }
-
-    return true;
-}
 
 // Reset all pages modifiers
 // This is to clear any pages that have modifiers set but will not be in the
@@ -79,6 +25,31 @@ reset_modifiers (void)
             g_real_mem[phys_position].modified = 0;
         }
     }
+}
+
+void
+init_pages (void)
+{
+    printf("(main): initializing pages.\n");
+
+    for (int i = 0; i < VIRT_MEM_PAGES; i++) {
+        g_virt_mem[i].active = 0;
+        g_virt_mem[i].referenced = 0;
+        g_virt_mem[i].modified = 0;
+        g_virt_mem[i].padding = 0;
+        g_virt_mem[i].shift = 0;
+    }
+
+    for (int i = 0; i < REAL_MEM_PAGES; i++) {
+        g_real_mem[i].active = 0;
+        g_real_mem[i].referenced = 0;
+        g_real_mem[i].modified = 0;
+        g_real_mem[i].padding = 0;
+        // Mask `i` to fit into `shift`
+        g_real_mem[i].shift = (uint16_t)(i & 0xFFF);
+    }
+
+    printf("(main): pages initialized.\n");
 }
 
 // Initialize (create) the `SWAP` folder

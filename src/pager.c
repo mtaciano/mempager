@@ -1,10 +1,13 @@
+#include "pagers/clock.h"
+#include "pagers/fifo.h"
+
+#include "utils/mem.h"
+#include "utils/rand.h"
+#include "utils/types.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "pagers/clock.h"
-#include "pagers/fifo.h"
-#include "utils.h"
 
 // Free all the circular list allocations
 static void

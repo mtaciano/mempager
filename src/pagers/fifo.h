@@ -1,7 +1,7 @@
 #ifndef FIFO_H
 #define FIFO_H
 
-#include "../utils.h"
+#include "../utils/types.h"
 
 // Handle page misses (virtual memory not present in physical memory) using
 // a linked list to choose what pages to unload

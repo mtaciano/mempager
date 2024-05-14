@@ -1,9 +1,9 @@
+#include "../utils/types.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "../utils.h"
 
 // Handle page misses (virtual memory not present in physical memory) using
 // a linked list to choose what pages to unload

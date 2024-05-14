@@ -9,14 +9,21 @@ project(
 add_executable(
   mempager
   src/mempager.c
-  src/utils.c
-  src/utils.h
+  src/argparse.c
+  src/argparse.h
   src/pager.c
   src/pager.h
   src/pagers/fifo.c
   src/pagers/fifo.h
   src/pagers/clock.c
-  src/pagers/clock.h)
+  src/pagers/clock.h
+  src/utils/mem.c
+  src/utils/mem.h
+  src/utils/rand.c
+  src/utils/rand.h
+  src/utils/misc.c
+  src/utils/misc.h
+  src/utils/types.h)
 
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)
