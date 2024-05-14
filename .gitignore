@@ -1,4 +1,4 @@
-# Build Artifacts
+# Build artifacts
 build
 .cache
 compile_commands.json
