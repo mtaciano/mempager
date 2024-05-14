@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.14...3.29)
 
 project(
   mempager
-  VERSION 0.1
-  DESCRIPTION "Memory pager"
+  VERSION 0.2
+  DESCRIPTION "Memory Pager"
   LANGUAGES C)
 
 add_executable(
@@ -21,7 +21,11 @@ add_executable(
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)
   target_link_libraries(mempager PUBLIC ${MATH_LIBRARY})
+else()
+  message(FATAL_ERROR "C Math library not found.")
 endif()
+
+set_property(TARGET mempager PROPERTY C_STANDARD 11)
 
 set(CMAKE_C_FLAGS_DEBUG
     "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Wpedantic -fsanitize=address,undefined"
