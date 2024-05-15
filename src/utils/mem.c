@@ -8,10 +8,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-// Reset all pages modifiers
-// This is to clear any pages that have modifiers set but will not be in the
-// future. Since pages with high hit counts should gain these modifiers again
-// this is not a problem
+/**
+ * @details Remove all modifiers of all pages. This is done to remove the
+ * modifiers of old pages (neither referenced nor modified recently) as they
+ * may be confused with more commonly accesed ones. Since pages with high hit
+ * counts should gain these modifiers again this is not a problem, and may
+ * reduce cache misses with algorithms that use page modifiers as a decision
+ * factor for what page to remove when a page miss happens
+ */
 void
 reset_modifiers (void)
 {
@@ -27,10 +31,16 @@ reset_modifiers (void)
     }
 }
 
+/**
+ * @details Initialize the virtual pages as all zeroes, as they initially don't
+ * carry any information. The physical pages are also initialized with zeroes
+ * in all fields but their `shift`s, as this is the value of their location
+ * (index) in the physical memory layout, and should never be modified
+ */
 void
 init_pages (void)
 {
-    printf("(main): initializing pages.\n");
+    printf("(utils::mem): initializing pages.\n");
 
     for (int i = 0; i < VIRT_MEM_PAGES; i++) {
         g_virt_mem[i].active = 0;
@@ -49,25 +59,34 @@ init_pages (void)
         g_real_mem[i].shift = (uint16_t)(i & 0xFFF);
     }
 
-    printf("(main): pages initialized.\n");
+    printf("(utils::mem): pages initialized.\n");
 }
 
-// Initialize (create) the `SWAP` folder
+/**
+ * @details Create the folder to be used as the swap. This function exists only
+ * to be an easier way to use this program, as it would be awkward to ask the
+ * user to create a swap folder before they run the program
+ */
 void
 init_swap (void)
 {
-    printf("(utils): creating swap folder.\n");
+    printf("(utils::mem): creating swap folder.\n");
 
     mkdir(SWAP, S_IRWXU);
 
-    printf("(utils): swap folder created.\n");
+    printf("(utils::mem): swap folder created.\n");
 }
 
-// Remove all the leftover pages present in the `SWAP` folder
+/**
+ * @details Delete the folder used as the swap. This function exists only
+ * to be an easier way to use this program, as it would be awkward to let the
+ * swap folder exist even after the program finishes, since it should clean
+ * itself after completion
+ */
 void
 deinit_swap (void)
 {
-    printf("(utils): deleting swap folder.\n");
+    printf("(utils::mem): deleting swap folder.\n");
 
     DIR *folder = opendir(SWAP);
     struct dirent *next_file;
@@ -84,5 +103,5 @@ deinit_swap (void)
     free(filename);
     closedir(folder);
 
-    printf("(utils): swap folder deleted.\n");
+    printf("(utils::mem): swap folder deleted.\n");
 }

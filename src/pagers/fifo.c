@@ -5,8 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Handle page misses (virtual memory not present in physical memory) using
-// a linked list to choose what pages to unload
+/**
+ * @details Handle pages not present in physical memory (page miss) using a
+ * linked list containing the pages active (in memory). The page chosen to be
+ * removed is *always* the head of the list, independently of its modifiers.
+ * After the head is removed, the newly active page is added to the tail of the
+ * the list and the now inactive page is loaded into swap
+ *
+ * @TODO Maybe unify duplicate code also in the CLOCK page miss function
+ */
 linked_list_t *
 fifo_page_miss (page_size_t missed_page, linked_list_t *linked_list)
 {

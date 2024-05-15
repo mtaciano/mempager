@@ -5,7 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: make default values be possible
+/**
+ * @details This function parses the user given arguments using simple string
+ * comparisons, one of the current weaknesses posed by this implementation is
+ * the necessity for the values to be in a specific order.
+ *
+ * @TODO Make default values be possible
+ */
 args_t
 parse_args (int argc, char **argv)
 {
@@ -46,7 +52,7 @@ parse_args (int argc, char **argv)
     } else if (is_number(argv[3])) {
         // The seed is always assumed to be in base 10
         parsed.has_seed = true;
-        parsed.seed = atol(argv[3]);
+        parsed.seed = (unsigned int)strtoul(argv[3], NULL, 10);
     } else {
         printf("Option %s does not exist, exiting.\n", argv[3]);
         exit(EXIT_FAILURE);

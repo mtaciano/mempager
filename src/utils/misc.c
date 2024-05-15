@@ -1,17 +1,24 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-// Mutate string making it lowercase
+/**
+ * @details Lowercase the input string, mutating it in place.
+ */
 void
 to_lowercase (char *str)
 {
     while (*str != '\0') {
-        *str = tolower(*str);
+        *str = (char)tolower(*str);
         str++;
     }
 }
 
-// Check if the given string is a number or not
+/**
+ * @details Check if the input string is composed of only numbers. The string
+ * is a number if all the letters are digits. As such, strings that contain a
+ * mix of numbers and other characters are not considered numbers, and return
+ * `false` as the result
+ */
 bool
 is_number (const char *str)
 {

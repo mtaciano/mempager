@@ -1,6 +1,5 @@
 #include "pagers/clock.h"
 #include "pagers/fifo.h"
-
 #include "utils/mem.h"
 #include "utils/rand.h"
 #include "utils/types.h"
@@ -9,7 +8,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Free all the circular list allocations
+/**
+ * @brief Free all the linked list allocations
+ *
+ * @details Free all the linked list allocations based on the size of
+ * `REAL_MEM_PAGES`, since we know that the only linked list used is this
+ * program is of this size. Therefore, the list will always have
+ * `REAL_MEM_PAGES` elements in it
+ *
+ * @param linked_list List to be freed
+ */
 static void
 free_linked_list (linked_list_t *linked_list)
 {
@@ -25,8 +33,18 @@ free_linked_list (linked_list_t *linked_list)
     printf("(pager): linked list freed.\n");
 }
 
-// Choose randomly virtual pages to allocate in the physical memory and fill
-// the linked list based on that choice
+/**
+ * @brief Initialize the memory with a random state
+ *
+ * @details Randomly choose virtual pages to allocate into the physical memory
+ * and fill a linked list based on that order. When the physical memory is
+ * filled, allocate the rest of the pages into the swap (represented as a
+ * folder in the current working directory)
+ *
+ * @param pager Pager being used
+ *
+ * @return Virtual pages loaded in physical memory
+ */
 static linked_list_t *
 init_mem (pager_t pager)
 {
@@ -38,7 +56,7 @@ init_mem (pager_t pager)
     for (page_size_t i = 0; i < REAL_MEM_PAGES; i++) {
         page_size_t chosen;
         do {
-            chosen = rand() % VIRT_MEM_PAGES;
+            chosen = (page_size_t)(rand() % VIRT_MEM_PAGES);
         } while (g_virt_mem[chosen].active);
 
         g_real_mem[i].active = 1;
@@ -81,7 +99,15 @@ init_mem (pager_t pager)
     return head;
 }
 
-// The function responsible for how to handle memory paging
+/**
+ * @details Simulate `TIME_LIMIT` times a random page being chosen to be
+ * referenced, and maybe modified. After `REF_RESET` rounds, reset all page
+ * modifiers. When the page is not active (not loaded into physical memory), it
+ * has to be removed from the swap and added to the physical memory, which
+ * consequently removes another page from the physical memory and inserts it
+ * into the swap, as the physical memory is supposed to be always full. The
+ * choise of page to be removed depends on the pager used
+ */
 void
 pager (pager_t pager, distribution_t dist)
 {

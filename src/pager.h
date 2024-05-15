@@ -3,7 +3,13 @@
 
 #include "utils/types.h"
 
-// The function responsible for how to handle memory paging
+/**
+ * @brief Simulate paging virtual memory in and out of the physical memory
+ * (i.e. RAM and swap)
+ *
+ * @param pager What pager to use (FIFO/CLOCK)
+ * @param distribution_t What distribution to use (UNIFORM/NORMAL)
+ */
 void pager (pager_t pager, distribution_t dist);
 
 #endif

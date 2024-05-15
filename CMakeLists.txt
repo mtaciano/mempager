@@ -35,5 +35,5 @@ endif()
 set_property(TARGET mempager PROPERTY C_STANDARD 11)
 
 set(CMAKE_C_FLAGS_DEBUG
-    "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Wpedantic -fsanitize=address,undefined"
-)
+    "${CMAKE_C_FLAGS_DEBUG} -g3 -Wall -Wextra -Wpedantic -Wdouble-promotion \
+    -Wconversion -fsanitize=address,undefined -fdiagnostics-color=always")

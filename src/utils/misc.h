@@ -3,10 +3,20 @@
 
 #include <stdbool.h>
 
-// Mutate string making it lowercase
+/**
+ * @brief Lowercase the input string
+ *
+ * @param[in,out] str String to be lowercased
+ */
 void to_lowercase (char *str);
 
-// Check if the given string is a number or not
+/**
+ * @brief Check if the input string is composed of only numbers
+ *
+ * @param str Input string
+ *
+ * @return If string is composed of only numbers or not
+ */
 bool is_number (const char *str);
 
 #endif

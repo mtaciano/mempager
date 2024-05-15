@@ -1,18 +1,24 @@
 #ifndef MEM_H
 #define MEM_H
 
-// Reset all pages modifiers
-// This is to clear any pages that have modifiers set but will not be in the
-// future. Since pages with high hit counts should gain these modifiers again
-// this is not a problem
+/**
+ * @brief Reset all modifiers of all pages
+ */
 void reset_modifiers (void);
 
+/**
+ * @brief Initialize the pages with their contents
+ */
 void init_pages (void);
 
-// Initialize (create) the `SWAP` folder
+/**
+ * @brief Initialize the swap partition
+ */
 void init_swap (void);
 
-// Remove all the leftover pages present in the `SWAP` folder
+/**
+ * @brief Delete the swap partition
+ */
 void deinit_swap (void);
 
 #endif
